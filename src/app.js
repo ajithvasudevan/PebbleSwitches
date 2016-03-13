@@ -20,7 +20,7 @@ var menu = new UI.Menu({
     }]
 });
 menu.on('select', function(e) {
-    //console.log('Selected item #' + e.itemIndex + ' of section #' + e.sectionIndex);
+    console.log('Selected item #' + e.itemIndex + ' of section #' + e.sectionIndex);
     var item = e.item.title; 
     console.log('The item is titled "' + item + '"'); 
     if(item.trim() === 'Fan On') {url = 'http://172.10.1.130/cgi-bin/2.py?d=HALL_LEFT_FAN&s=ON'; }
