@@ -1,35 +1,42 @@
 var UI = require('ui');
 var ajax = require('ajax');
 
-var url = "";
+var baseurl = "http://172.10.1.130/cgi-bin/2.py?d=";
 var menu = new UI.Menu({
     sections: [{
         items: [{
-            title: 'Light On'
+            title: 'Light On',
+            device:'HALL_LAMP',
+            state: 'ON'
         }, {
-            title: 'Light Off'
+            title: 'Light Off',
+            device:'HALL_LAMP',
+            state: 'OFF'
         }, {
-            title: 'Fan On'
+            title: 'Fan On',
+            device:'HALL_LEFT_FAN',
+            state: 'ON'
         }, {
-            title: 'Fan Off'
+            title: 'Fan Off',
+            device:'HALL_LEFT_FAN',
+            state: 'OFF'
         }, {
-            title: 'Tube On'
+            title: 'Tube On',
+            device:'HALL_TUBE',
+            state: 'ON'
         }, {
-            title: 'Tube Off'
+            title: 'Tube Off',
+            device:'HALL_TUBE',
+            state: 'OFF'
         }]
     }]
 });
 menu.on('select', function(e) {
     console.log('Selected item #' + e.itemIndex + ' of section #' + e.sectionIndex);
-    var item = e.item.title; 
-    console.log('The item is titled "' + item + '"'); 
-    if(item.trim() === 'Fan On') {url = 'http://172.10.1.130/cgi-bin/2.py?d=HALL_LEFT_FAN&s=ON'; }
-    else if(item.trim() === 'Fan Off') {url = 'http://172.10.1.130/cgi-bin/2.py?d=HALL_LEFT_FAN&s=OFF'; }
-    else if(item.trim() === 'Light On') {url = 'http://172.10.1.130/cgi-bin/2.py?d=HALL_LAMP&s=ON'; }
-    else if(item.trim() === 'Light Off') {url = 'http://172.10.1.130/cgi-bin/2.py?d=HALL_LAMP&s=OFF';  }
-    else if(item.trim() === 'Tube On') {url = 'http://172.10.1.130/cgi-bin/2.py?d=HALL_TUBE&s=ON'; }
-    else if(item.trim() === 'Tube Off') {url = 'http://172.10.1.130/cgi-bin/2.py?d=HALL_TUBE&s=OFF';  }
-    ajax({url: url}, function(data) { console.log('Successfully Called URL. Data received: '+ data); }, function(error) { console.log('Failed to call URL. Error:  ' + error); });                
+    console.log('The item is titled "' + e.item.title + '"'); 
+    var url = baseurl + e.item.device + "&s=" + e.item.state;
+    console.log("url = " + url);
+    ajax({url: url}, function(data) { console.log(data); }, function(error) { console.log(error); });                
 });
 menu.show();
 
