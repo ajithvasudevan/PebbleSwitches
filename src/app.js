@@ -1,7 +1,35 @@
 var UI = require('ui');
 var ajax = require('ajax');
+var vibe = require('ui/vibe');
+var Settings = require('settings');
 
-var baseurl = "http://172.10.1.130/cgi-bin/2.py?d=";
+var baseurl = Settings.option('baseurl');
+console.log('baseurl in Settings: ' + baseurl);
+if(!baseurl) baseurl = "http://172.10.1.130/cgi-bin/2.py?d=";
+
+Settings.config(
+  { url: 'http://172.10.1.130/config.html' },
+  function(e) {
+    console.log('opening configurable');
+    console.log(JSON.stringify(e));
+    console.log('baseurl set in options: ' + baseurl);
+    Settings.option('baseurl', baseurl);  
+  },
+  function(e) {
+    console.log('closed configurable');
+    console.log(JSON.stringify(e.options)); 
+    if (e.failed) {
+      console.log(e.response);
+    }  
+    console.log("baseurl = " + e.options.baseurl);
+    baseurl = e.options.baseurl;
+    Settings.option('baseurl', baseurl);  
+    console.log('baseurl (closed) = ' + baseurl);  
+  }
+);
+
+
+baseurl = "http://172.10.1.130/cgi-bin/2.py?d=";
 var menu = new UI.Menu({
     sections: [{
         items: [{
@@ -36,7 +64,7 @@ menu.on('select', function(e) {
     console.log('The item is titled "' + e.item.title + '"'); 
     var url = baseurl + e.item.device + "&s=" + e.item.state;
     console.log("url = " + url);
-    ajax({url: url}, function(data) { console.log(data); }, function(error) { console.log(error); });                
+    ajax({url: url}, function(data) { console.log(data); vibe.vibrate('short'); }, function(error) { console.log(error); });                
 });
 menu.show();
 
