@@ -3,68 +3,55 @@ var ajax = require('ajax');
 var vibe = require('ui/vibe');
 var Settings = require('settings');
 
-var baseurl = Settings.option('baseurl');
-console.log('baseurl in Settings: ' + baseurl);
-if(!baseurl) baseurl = "http://172.10.1.130/cgi-bin/2.py?d=";
+var items   = Settings.option('items');
+console.log('items in Settings: ' + items);
+
+var itemsjson = parse(items);
 
 Settings.config(
-  { url: 'http://172.10.1.130/config.html' },
+  { url: 'http://www.ajithv.net/config.html' },
   function(e) {
-    console.log('opening configurable');
+    console.log('===================opening configurable====================');
     console.log(JSON.stringify(e));
-    console.log('baseurl set in options: ' + baseurl);
-    Settings.option('baseurl', baseurl);  
+    console.log('items set in options: ' + items);
+    Settings.option('items', items);  
   },
   function(e) {
-    console.log('closed configurable');
+    console.log('===================closed configurable===================');
     console.log(JSON.stringify(e.options)); 
     if (e.failed) {
       console.log(e.response);
     }  
-    console.log("baseurl = " + e.options.baseurl);
-    baseurl = e.options.baseurl;
-    Settings.option('baseurl', baseurl);  
-    console.log('baseurl (closed) = ' + baseurl);  
+    console.log("items = " + e.options.items);  
+    items =   e.options.items;
+    Settings.option('items', items);   
   }
 );
 
-
-baseurl = "http://172.10.1.130/cgi-bin/2.py?d=";
 var menu = new UI.Menu({
     sections: [{
-        items: [{
-            title: 'Light On',
-            device:'HALL_LAMP',
-            state: 'ON'
-        }, {
-            title: 'Light Off',
-            device:'HALL_LAMP',
-            state: 'OFF'
-        }, {
-            title: 'Fan On',
-            device:'HALL_LEFT_FAN',
-            state: 'ON'
-        }, {
-            title: 'Fan Off',
-            device:'HALL_LEFT_FAN',
-            state: 'OFF'
-        }, {
-            title: 'Tube On',
-            device:'HALL_TUBE',
-            state: 'ON'
-        }, {
-            title: 'Tube Off',
-            device:'HALL_TUBE',
-            state: 'OFF'
-        }]
+        items: itemsjson
     }]
 });
 menu.on('select', function(e) {
-    console.log('Selected item #' + e.itemIndex + ' of section #' + e.sectionIndex);
-    console.log('The item is titled "' + e.item.title + '"'); 
-    var url = baseurl + e.item.device + "&s=" + e.item.state;
+    vibe.vibrate('short');
+    console.log('The selected item is ' + e.item.title); 
+    var url = e.item.url;
     console.log("url = " + url);
     ajax({url: url}, function(data) { console.log(data); vibe.vibrate('short'); }, function(error) { console.log(error); });                
 });
 menu.show();
 
+function parse(items)
+{
+    var itemsjson = [];
+    if(items.trim() === '') return itemsjson;
+    var itemsarrstr = items.split('\n');
+    if(itemsarrstr.length === 0) return itemsjson;
+    itemsarrstr.forEach(function(itemstr) {
+        var itarr = itemstr.split(',');
+        if(itarr.length !== 2) return;
+        itemsjson.push({"title": itarr[0], "url": itarr[1]});
+    });
+    return itemsjson;
+}
